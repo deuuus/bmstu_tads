@@ -2,7 +2,7 @@
 #define READ_H
 
 #define MAX_STR_LEN   30+2
-#define MAX_COUNT   1000
+#define MAX_COUNT   8000
 #define READ_ERR      -1
 #define VALUE_ERR     -2
 
@@ -34,8 +34,11 @@ typedef struct {
 	} condition;
 } car_t;
 
-int read(car_t *cars, int *count);
 int read_str(char str[]);
 int read_uint(int *num);
+int readf_str(char str[], FILE *f);
+int readf_uint(int *num, FILE *f);
+int read_file(car_t *cars, int *count, FILE *f);
+int print();
 
 #endif

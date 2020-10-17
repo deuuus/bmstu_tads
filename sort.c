@@ -1,149 +1,20 @@
-#include "sort.h"
-#include <sys/time.h>
-#include <inttypes.h>
+#include "sort.h"   
 
-int show_h4(void)
+int sort(car_t cars[], int count, FILE *f)
 {
-    int rc;
-    int count = 0;
-    car_t cars[MAX_COUNT];
-    FILE *f;
-    printf("\nВведите имя файла, содержащее сведения о машинах: ");
-	char file[MAX_STR_LEN];
-	if (!fgets(file, sizeof(file), stdin))
-	{
-        printf("Ошибка чтения имени файла.");
-    	return READ_ERR;
-    }
-	if (file[strlen(file) - 1] != '\n')
-	{
-		printf("Ошибка ввода: превышена максимальная длина строки.");
-		return VALUE_ERR;
-	}
-	else
-		file[strlen(file) - 1] = '\0';
-    f = fopen(file, "r");
+	int rc;
+    f = NULL;
     if ((rc = read_file(cars, &count, f)))
     {
-        printf("Ошибка чтения файла.\n");
+        printf("Ошибка во время чтения файла.\n");
         return rc;
     }
-    car_t origin[count];
+    car_t cars_to_sort[count];
     for (int i = 0; i < count; i++)
-    {
-        origin[i] = cars[i];
-    }
-    {
-        struct timeval ta, te;
-        int64_t time_k = 0;
-        int mem = 0;
-        for (int i = 0; i < 1000; i++)
-        {
-            for (int j = 0; j < count; j++)
-                cars[j] = origin[j];
-            char brand[] = "BMW";
-            int min_cost = 0;
-            int max_cost = 1000;
-            key_t key[count];
-            int key_count = 0;
-            gettimeofday(&ta, NULL);
-            make_table(cars, key, count, &key_count, brand, min_cost, max_cost);
-            slow_sort(cars, count);
-            gettimeofday(&te, NULL);
-            mem += sizeof(cars);
-            time_k += (te.tv_sec - ta.tv_sec) * 1000000LL + (te.tv_usec - ta.tv_usec);
-        }
-        printf("Затрачиваемая память: %d байт\n", mem / 1000);
-        printf("\nМедленная сортировка исходной таблицы: %lf миллисекунд\n\n", time_k / 1000.0);
-    }
-    {
-        struct timeval ta, te;
-        int64_t time_k = 0;
-        int mem = 0;
-        for (int i = 0; i < 1000; i++)
-        {
-            for (int j = 0; j < count; j++)
-                cars[j] = origin[j];
-            char brand[] = "BMW";
-            int min_cost = 0;
-            int max_cost = 1000;
-            key_t key[count];
-            int key_count = 0;
-            gettimeofday(&ta, NULL);
-            make_table(cars, key, count, &key_count, brand, min_cost, max_cost);
-            quick_sort(cars, 0, count - 1);
-            gettimeofday(&te, NULL);
-            mem += sizeof(cars);
-            time_k += (te.tv_sec - ta.tv_sec) * 1000000LL + (te.tv_usec - ta.tv_usec);
-        }
-        printf("Затрачиваемая память: %d\n байт", mem / 1000);
-        printf("\nБыстрая сортировка исходной таблицы: %lf миллисекунд\n\n", time_k / 1000.0);
-    }
-    {
-        struct timeval ta, te;
-        int64_t time_k = 0;
-        int mem = 0;
-        for (int i = 0; i < 1000; i++)
-        {
-            for (int j = 0; j < count; j++)
-                cars[j] = origin[j];
-            char brand[] = "BMW";
-            int min_cost = 0;
-            int max_cost = 1000;
-            key_t key[count];
-            int key_count = 0;
-            gettimeofday(&ta, NULL);
-            make_table(cars, key, count, &key_count, brand, min_cost, max_cost);
-            key_slow_sort(key, key_count);
-            match(key, key_count, cars, count);
-            gettimeofday(&te, NULL);
-            mem += sizeof(key);
-            time_k += (te.tv_sec - ta.tv_sec) * 1000000LL + (te.tv_usec - ta.tv_usec);
-        }
-        printf("Затрачиваемая память: %d байт\n", mem / 1000);
-        printf("\nМедленная сортировка с использованием таблицы ключей: %lf миллисекунд\n\n", time_k / 1000.0);
-    }
-    {
-        struct timeval ta, te;
-        int64_t time_k = 0;
-        int mem = 0;
-        for (int i = 0; i < 1000; i++)
-        {
-            for (int j = 0; j < count; j++)
-                cars[j] = origin[j];
-            char brand[] = "BMW";
-            int min_cost = 0;
-            int max_cost = 1000;
-            key_t key[count];
-            int key_count = 0;
-            gettimeofday(&ta, NULL);
-            make_table(cars, key, count, &key_count, brand, min_cost, max_cost);
-            key_quick_sort(key, 0, key_count - 1);
-            match(key, key_count, cars, count);
-            gettimeofday(&te, NULL);
-            mem += sizeof(key);
-            time_k += (te.tv_sec - ta.tv_sec) * 1000000LL + (te.tv_usec - ta.tv_usec);
-        }
-        printf("Затрачиваемая память: %d байт\n", mem / 1000);
-        printf("\nБыстрая сортировка с использованием таблицы ключей: %lf миллисекунд\n\n", time_k / 1000.0);
-    }
-    return EXIT_SUCCESS;
-}
-
-int show_h1(car_t cars[], int *count, FILE *f)
-{
-    int rc;
-    if ((rc = read_file(cars, count, f)))
-    {
-        printf("Ошибка во время чтения файла.\n");
-    }
-    int n = *count;
-    car_t cars_to_sort[n];
-    for (int i = 0; i < n; i++)
     {   
         cars_to_sort[i] = cars[i];
     }
-    printf("Введите марку автомобиля, по которой будет производиться сортировка.\nМарка: ");
+	printf("Введите марку автомобиля, по которой будет производиться сортировка.\nМарка: ");
 	char brand[MAX_STR_LEN];
 	if ((rc = read_str(brand)))
 		return rc;
@@ -160,158 +31,170 @@ int show_h1(car_t cars[], int *count, FILE *f)
 		return VALUE_ERR;
 	}
 	printf("Данные для поиска успешно введены. Происходит сортировка...\n");
-	key_t key[n];
+	key_t key[count];
 	int key_count = 0;
-	make_table(cars_to_sort, key, n, &key_count, brand, min_cost, max_cost);
+	make_key_table(cars_to_sort, key, count, &key_count, brand, min_cost, max_cost);
 	if (key_count == 0)
 	{
 		printf("Не найдено ни одной машины с заданными параметрами.");
 		return VALUE_ERR;
 	}
     key_quick_sort(key, 0, key_count - 1);
-    printf("\nОтсортированная таблица ключей:\n");
-    for (int i = 0; i < key_count; i++)
-        printf("Ключ: %d\nИндекс в исходной таблице: %d\n", key[i].field, key[i].index);
-    return EXIT_SUCCESS;
+    print_request(key, key_count, brand, min_cost, max_cost);
+    match_key(key, key_count, cars_to_sort, count);
+	return EXIT_SUCCESS;
 }
 
-int show_h2(car_t cars[], int *count, FILE *f)
+void match_key(key_t key[], int key_n, car_t cars[], int cars_n)
 {
-    int rc;
-    if ((rc = read_file(cars, count, f)))
+    car_t buf[key_n];
+    for (int i = 0; i < key_n; i++)
+        buf[i] = cars[key[i].index];
+    for (int i = 0; i < key_n - 1; i++)
+		for (int j = 0; j < key_n - i - 1; j++)
+			if (key[j].index > key[j + 1].index)
+            {
+                key_t buf = key[j];
+                key[j] = key[j + 1];
+                key[j + 1] = buf;
+            }
+    for (int i = 0; i < key_n; i++)
+        cars[key[i].index] = buf[i];
+}
+
+void match(car_t cars[], car_t sorted[], int count, int s_count, char brand[], int min_cost, int max_cost)
+{
+    s_count = 0;
+    for (int i = 0; i < count; i++)
+        if (suit(cars[i], brand, min_cost, max_cost) == 0)
+            cars[i] = sorted[s_count++];
+}
+
+void slow_sort(car_t a[], int n)
+{
+    for (int i = 0; i < n - 1; i++)
+		for (int j = 0; j < n - i - 1; j++)
+			if (a[j].cost > a[j + 1].cost)
+            {
+                car_t buf = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = buf;
+            }
+}
+
+void make_key_table(car_t cars[], key_t key[], int count, int *key_count, const char *brand, int min_cost, int max_cost)
+{
+    int k = 0;
+	for (int i = 0; i < count; i++)
     {
-        printf("Ошибка во время чтения файла.\n");
+		if (!strcmp(cars[i].brand, brand) && cars[i].cost >= min_cost && cars[i].cost <= max_cost
+		    && cars[i].new && !cars[i].condition.used.repairs && cars[i].condition.used.owners == 2)
+		{
+			key[k].field = cars[i].cost;
+			key[k].index = i;
+			k += 1;
+		}
     }
-    int n = *count;
-    car_t cars_to_sort[n];
-    for (int i = 0; i < n; i++)
-    {   
-        cars_to_sort[i] = cars[i];
-    }
-    printf("Введите марку автомобиля, по которой будет производиться сортировка.\nМарка: ");
-	char brand[MAX_STR_LEN];
-	if ((rc = read_str(brand)))
-		return rc;
-	printf("Введите ценовой диапазон, по которому будет производиться сортировка.\nМинимальная цена: ");
-	int min_cost, max_cost;
-	if ((rc = read_uint(&min_cost)))
-		return rc;
-	printf("Максимальная цена: ");
-	if ((rc = read_uint(&max_cost)))
-		return rc;
-	if (min_cost >= max_cost)
-	{
-		printf("Ошибка: недопустимый ценовой диапазон.");
-		return VALUE_ERR;
-	}
-	printf("Данные для поиска успешно введены. Происходит сортировка...\n");
-    printf("\nКоличество машин = %d\n", n);
-	key_t key[n];
-	int key_count = 0;
-	make_table(cars_to_sort, key, n, &key_count, brand, min_cost, max_cost);
-	if (key_count == 0)
-	{
-		printf("Не найдено ни одной машины с заданными параметрами.");
-		return VALUE_ERR;
-	}
-    quick_sort(cars_to_sort, 0, n - 1);
-    printf("\nОтсортированная исходная таблица:\n");
-    prt(cars_to_sort, n);
-    return EXIT_SUCCESS;
+    *key_count = k;
 }
 
-void prt(car_t cars[], int count)
+void make_table(car_t cars[], car_t sorted[], int count, int *s_count, char brand[], int min_cost, int max_cost)
 {
-    printf("\n--------------------------------------------------------------------");
-    printf("\n|Maшина №|Марка|Страна-производитель|Цена|Цвет|Состояние|Гарантия|Год выпуска|Пробег|Кол-во "
-        "ремонтов|Кол-во собственников|\n");
-        for (int i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
+		if (suit(cars[i], brand, min_cost, max_cost) == 0)
+		{
+			sorted[(*s_count)++] = cars[i];
+		}
+}
+
+void key_quick_sort(key_t a[], int b, int e)
+{
+    int l = b, r = e;
+    key_t mid = a[(l + r) / 2];
+    while (l <= r)
+    {
+        while (a[l].field < mid.field)
+            l++;
+        while (a[r].field > mid.field)
+            r--;
+        if (l <= r)
         {
-            printf("\nМашина №%d:\n", i + 1);
-            printf("Марка: %s\n", cars[i].brand);
-            printf("Страна-производитель: %s\n", cars[i].country);
-            printf("Цена: %d\n", cars[i].cost);
-            printf("Цвет: %s\n", cars[i].color);
-            printf("Состояние: ");
-            if (cars[i].new == 0)
-            {
-                printf("Новая\n");
-                printf("Гарантия(в годах): %d\n\n", cars[i].condition.warranty);
-            }
-            else
-            {
-                printf("Не новая\n");
-                printf("Год выпуска: %d\n", cars[i].condition.used.year);
-                printf("Пробег: %d\n", cars[i].condition.used.mileage);
-                printf("Кол-во ремонтов: %d\n", cars[i].condition.used.repairs);
-                printf("Кол-во собственников: %d\n", cars[i].condition.used.owners);
-            }
+            key_t buf = a[l];
+            a[l] = a[r];
+            a[r] = buf;
+            l++;
+            r--;
         }
-        printf("--------------------------------------------------------------------\n");
+    }
+    if (b < r)
+        key_quick_sort(a, b, r);
+    if (e > l)
+        key_quick_sort(a, l, e);
 }
 
-int show_h3(car_t cars[], int *count, FILE *f)
+int suit(car_t car, char brand[], int min_cost, int max_cost)
 {
-    int rc;
-    if ((rc = read_file(cars, count, f)))
+    if (!strcmp(car.brand, brand) && car.cost >= min_cost && car.cost <= max_cost
+		&& car.new && !car.condition.used.repairs && car.condition.used.owners == 2)
+            return EXIT_SUCCESS;
+    else
+        return EXIT_FAILURE; 
+}
+
+void quick_sort(car_t a[], int b, int e)
+{
+    int l = b, r = e;
+    car_t mid = a[(l + r) / 2];
+    while (l <= r)
     {
-        printf("Ошибка во время чтения файла.\n");
+        while (a[l].cost < mid.cost)
+            l++;
+        while (a[r].cost > mid.cost)
+            r--;
+        if (l <= r)
+        {
+            car_t buf = a[l];
+            a[l] = a[r];
+            a[r] = buf;
+            l++;
+            r--;
+        }
     }
-    int n = *count;
-    car_t cars_to_sort[n];
-    for (int i = 0; i < n; i++)
-    {   
-        cars_to_sort[i] = cars[i];
-    }
-    printf("Введите марку автомобиля, по которой будет производиться сортировка.\nМарка: ");
-	char brand[MAX_STR_LEN];
-	if ((rc = read_str(brand)))
-		return rc;
-	printf("Введите ценовой диапазон, по которому будет производиться сортировка.\nМинимальная цена: ");
-	int min_cost, max_cost;
-	if ((rc = read_uint(&min_cost)))
-		return rc;
-	printf("Максимальная цена: ");
-	if ((rc = read_uint(&max_cost)))
-		return rc;
-	if (min_cost >= max_cost)
-	{
-		printf("Ошибка: недопустимый ценовой диапазон.");
-		return VALUE_ERR;
-	}
-	printf("Данные для поиска успешно введены. Происходит сортировка...\n");
-	key_t key[n];
-	int key_count = 0;
-	make_table(cars_to_sort, key, n, &key_count, brand, min_cost, max_cost);
-	if (key_count == 0)
-	{
-		printf("Не найдено ни одной машины с заданными параметрами.");
-		return VALUE_ERR;
-	}
-    key_quick_sort(key, 0, key_count - 1);
-    match(key, key_count, cars_to_sort, n);
-    printf("\nОтсортированная исходная таблица с использованием таблицы ключей:\n");
-    prt(cars_to_sort, n);
-    return EXIT_SUCCESS;
+    if (b < r)
+        quick_sort(a, b, r);
+    if (e > l)
+        quick_sort(a, l, e);
+}
+
+void key_slow_sort(key_t a[], int n)
+{
+	for (int i = 0; i < n - 1; i++)
+		for (int j = 0; j < n - i - 1; j++)
+			if (a[j].field > a[j + 1].field)
+			{
+				key_t buf = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = buf;
+			}
+}
+
+void print_request(key_t a[], int n, const char brand[], int min_cost, int max_cost)
+{
+	printf("\nЦены не новых машин марки %s с одним предыдущим собственником, "
+		"отсутствием ремонта в диапазоне цен от %d до %d:\n", brand, min_cost, max_cost);
+	for (int i = 0; i < n; i++)
+		printf("%d) %d\n", i + 1, a[i].field);
 }
 
 int del(car_t cars[], int *count, FILE *f)
 {
     int rc;
+    f = NULL;
+    *count = 0;
     printf("\nВведите имя файла, содержащее сведения о машинах: ");
 	char file[MAX_STR_LEN];
-	if (!fgets(file, sizeof(file), stdin))
-	{
-        printf("Ошибка чтения имени файла.");
-    	return READ_ERR;
-    }
-	if (file[strlen(file) - 1] != '\n')
-	{
-		printf("Ошибка ввода: превышена максимальная длина строки.");
-		return VALUE_ERR;
-	}
-	else
-		file[strlen(file) - 1] = '\0';
+	if ((rc = read_str(file)))
+        return rc;
     f = fopen(file, "r");
     if ((rc = read_file(cars, count, f)))
     {
@@ -404,7 +287,6 @@ int del(car_t cars[], int *count, FILE *f)
             return rc;
         del_owners(cars, count, res);
     }
-    fseek(f, 0, SEEK_SET);
     for (int i = 0; i < *count; i++)
     {
         fprintf(f, "%s\n%s\n%d\n%s\n", cars[i].brand, cars[i].country, cars[i].cost, cars[i].color);
@@ -416,34 +298,33 @@ int del(car_t cars[], int *count, FILE *f)
                 cars[i].condition.used.repairs, cars[i].condition.used.owners);
         }
     }
-    printf("Данные удалены. Чтобы сохранить изменения, выйдите из программы.\n");
+    fclose(f);
+    printf("Данные удалены.\n");
     return EXIT_SUCCESS;
 }
 
 int add(car_t cars[], int *count, FILE *f)
 {
     int rc;
+    *count = 0;
+    printf("\nВведите имя файла, содержащее сведения о машинах: ");
+	char file[MAX_STR_LEN];
+	if ((rc = read_str(file)))
+        return rc;
+    f = fopen(file, "r");
+    if (!f)
+    {
+        printf("Ошибка во время открытия файла.\n");
+        return READ_ERR;
+    }
+    if ((rc = read_file(cars, count, f)))
+        return rc;
     car_t car;
     if (*count == MAX_COUNT)
     {
         printf("Невозможно добавить запись - достигнут максимальный размер файла.\n");
         return EXIT_SUCCESS;
     }
-    printf("\nВведите имя файла, содержащее сведения о машинах: ");
-	char file[MAX_STR_LEN];
-	if (!fgets(file, sizeof(file), stdin))
-	{
-        printf("Ошибка чтения имени файла.");
-    	return READ_ERR;
-    }
-	if (file[strlen(file) - 1] != '\n')
-	{
-		printf("Ошибка ввода: превышена максимальная длина строки.");
-		return VALUE_ERR;
-	}
-	else
-		file[strlen(file) - 1] = '\0';
-    f = fopen(file, "a+");
     printf("\nВвод информации о машине №%d\n\n", *count + 1);
     printf("Введите марку автомобиля: ");
     if ((rc = read_str(car.brand)))
@@ -486,6 +367,8 @@ int add(car_t cars[], int *count, FILE *f)
             return rc;
     }
     cars[(*count)++] = car;
+    fclose(f);
+    f = fopen(file, "a+");
     fprintf(f, "%s\n%s\n%d\n%s\n", car.brand, car.country, car.cost, car.color);
     if (car.new == 0)
         fprintf(f, "%d\n\n", car.condition.warranty);
@@ -494,175 +377,18 @@ int add(car_t cars[], int *count, FILE *f)
         fprintf(f, "%d\n%d\n%d\n%d\n\n", car.condition.used.year, car.condition.used.mileage,
             car.condition.used.repairs, car.condition.used.owners);
     }
-    printf("Информация о машине успешно добавлена.\n");
+    printf("\nИнформация о машине успешно добавлена.\n\n");
+    fclose(f);
     return EXIT_SUCCESS;
-}
-
-int sort(car_t cars[], int count, FILE *f)
-{
-	int rc;
-    f = NULL;
-    if ((rc = read_file(cars, &count, f)))
-    {
-        printf("Ошибка во время чтения файла.\n");
-        return rc;
-    }
-    car_t cars_to_sort[count];
-    for (int i = 0; i < count; i++)
-    {   
-        cars_to_sort[i] = cars[i];
-    }
-	printf("Введите марку автомобиля, по которой будет производиться сортировка.\nМарка: ");
-	char brand[MAX_STR_LEN];
-	if ((rc = read_str(brand)))
-		return rc;
-	printf("Введите ценовой диапазон, по которому будет производиться сортировка.\nМинимальная цена: ");
-	int min_cost, max_cost;
-	if ((rc = read_uint(&min_cost)))
-		return rc;
-	printf("Максимальная цена: ");
-	if ((rc = read_uint(&max_cost)))
-		return rc;
-	if (min_cost >= max_cost)
-	{
-		printf("Ошибка: недопустимый ценовой диапазон.");
-		return VALUE_ERR;
-	}
-	printf("Данные для поиска успешно введены. Происходит сортировка...\n");
-	key_t key[count];
-	int key_count = 0;
-	make_table(cars_to_sort, key, count, &key_count, brand, min_cost, max_cost);
-	if (key_count == 0)
-	{
-		printf("Не найдено ни одной машины с заданными параметрами.");
-		return VALUE_ERR;
-	}
-    key_quick_sort(key, 0, key_count - 1);
-    print_request(key, key_count, brand, min_cost, max_cost);
-    match(key, key_count, cars_to_sort, count);
-	return EXIT_SUCCESS;
-}
-
-void match(key_t key[], int key_n, car_t cars[], int cars_n)
-{
-    car_t buf[key_n];
-    for (int i = 0; i < key_n; i++)
-        buf[i] = cars[key[i].index];
-    for (int i = 0; i < key_n - 1; i++)
-		for (int j = 0; j < key_n - i - 1; j++)
-			if (key[j].index > key[j + 1].index)
-            {
-                key_t buf = key[j];
-                key[j] = key[j + 1];
-                key[j + 1] = buf;
-            }
-    for (int i = 0; i < key_n; i++)
-        cars[key[i].index] = buf[i];
-}
-
-void slow_sort(car_t a[], int n)
-{
-    for (int i = 0; i < n - 1; i++)
-		for (int j = 0; j < n - i - 1; j++)
-			if (a[j].cost > a[j + 1].cost)
-            {
-                car_t buf = a[j];
-                a[j] = a[j + 1];
-                a[j + 1] = buf;
-            }
-}
-
-void make_table(car_t cars[], key_t key[], int count, int *key_count, char brand[], int min_cost, int max_cost)
-{
-	for (int i = 0; i < count; i++)
-		if (!strcmp(cars[i].brand, brand) && cars[i].cost >= min_cost && cars[i].cost <= max_cost
-			&& cars[i].new && !cars[i].condition.used.repairs && cars[i].condition.used.owners == 2)
-		{
-			key[*key_count].field = cars[i].cost;
-			key[*key_count].index = i;
-			*key_count += 1;
-		}
-}
-
-void key_quick_sort(key_t a[], int b, int e)
-{
-    int l = b, r = e;
-    key_t mid = a[(l + r) / 2];
-    while (l <= r)
-    {
-        while (a[l].field < mid.field)
-            l++;
-        while (a[r].field > mid.field)
-            r--;
-        if (l <= r)
-        {
-            key_t buf = a[l];
-            a[l] = a[r];
-            a[r] = buf;
-            l++;
-            r--;
-        }
-    }
-    if (b < r)
-        key_quick_sort(a, b, r);
-    if (e > l)
-        key_quick_sort(a, l, e);
-}
-
-void quick_sort(car_t a[], int b, int e)
-{
-    int l = b, r = e;
-    car_t mid = a[(l + r) / 2];
-    while (l <= r)
-    {
-        while (a[l].cost < mid.cost)
-            l++;
-        while (a[r].cost > mid.cost)
-            r--;
-        if (l <= r)
-        {
-            car_t buf = a[l];
-            a[l] = a[r];
-            a[r] = buf;
-            l++;
-            r--;
-        }
-    }
-    if (b < r)
-        quick_sort(a, b, r);
-    if (e > l)
-        quick_sort(a, l, e);
-}
-
-void key_slow_sort(key_t a[], int n)
-{
-	for (int i = 0; i < n - 1; i++)
-		for (int j = 0; j < n - i - 1; j++)
-			if (a[j].field > a[j + 1].field)
-			{
-				key_t buf = a[j];
-                a[j] = a[j + 1];
-                a[j + 1] = buf;
-			}
-}
-
-void print_request(key_t a[], int n, const char brand[], int min_cost, int max_cost)
-{
-	printf("\nЦены не новых машин марки %s с одним предыдущим собственником, "
-		"отсутствием ремонта в диапазоне цен от %d до %d:\n", brand, min_cost, max_cost);
-	for (int i = 0; i < n; i++)
-		printf("%d) %d\n", i + 1, a[i].field);
 }
 
 void del_brand(car_t cars[], int *count, char brand[])
 {
-    car_t res[*count];
+    car_t res[MAX_COUNT];
     int n = 0;
     for (int i = 0; i < *count; i++)
-    {
         if (strcmp(cars[i].brand, brand))
             res[n++] = cars[i];
-    }
     for (int i = 0; i < n; i++)
         cars[i] = res[i];
     *count = n;
@@ -670,7 +396,7 @@ void del_brand(car_t cars[], int *count, char brand[])
 
 void del_country(car_t cars[], int *count, char country[])
 {
-    car_t res[*count];
+    car_t res[MAX_COUNT];
     int n = 0;
     for (int i = 0; i < *count; i++)
     {
@@ -684,7 +410,7 @@ void del_country(car_t cars[], int *count, char country[])
 
 void del_color(car_t cars[], int *count, char color[])
 {
-    car_t res[*count];
+    car_t res[MAX_COUNT];
     int n = 0;
     for (int i = 0; i < *count; i++)
     {
@@ -698,7 +424,7 @@ void del_color(car_t cars[], int *count, char color[])
 
 void del_cost(car_t cars[], int *count, int cost)
 {
-    car_t res[*count];
+    car_t res[MAX_COUNT];
     int n = 0;
     for (int i = 0; i < *count; i++)
     {
@@ -712,7 +438,7 @@ void del_cost(car_t cars[], int *count, int cost)
 
 void del_new(car_t cars[], int *count, int new)
 {
-    car_t res[*count];
+    car_t res[MAX_COUNT];
     int n = 0;
     for (int i = 0; i < *count; i++)
     {
@@ -726,7 +452,7 @@ void del_new(car_t cars[], int *count, int new)
 
 void del_warranty(car_t cars[], int *count, int war)
 {
-    car_t res[*count];
+    car_t res[MAX_COUNT];
     int n = 0;
     for (int i = 0; i < *count; i++)
     {
@@ -740,7 +466,7 @@ void del_warranty(car_t cars[], int *count, int war)
 
 void del_year(car_t cars[], int *count, int year)
 {
-    car_t res[*count];
+    car_t res[MAX_COUNT];
     int n = 0;
     for (int i = 0; i < *count; i++)
     {
@@ -754,7 +480,7 @@ void del_year(car_t cars[], int *count, int year)
 
 void del_mileage(car_t cars[], int *count, int mileage)
 {
-    car_t res[*count];
+    car_t res[MAX_COUNT];
     int n = 0;
     for (int i = 0; i < *count; i++)
     {
@@ -768,7 +494,7 @@ void del_mileage(car_t cars[], int *count, int mileage)
 
 void del_repairs(car_t cars[], int *count, int repairs)
 {
-    car_t res[*count];
+    car_t res[MAX_COUNT];
     int n = 0;
     for (int i = 0; i < *count; i++)
     {
@@ -782,7 +508,7 @@ void del_repairs(car_t cars[], int *count, int repairs)
 
 void del_owners(car_t cars[], int *count, int owners)
 {
-    car_t res[*count];
+    car_t res[MAX_COUNT];
     int n = 0;
     for (int i = 0; i < *count; i++)
     {
