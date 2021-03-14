@@ -1,0 +1,1 @@
+dot -Tpng data.gv -o image.png
